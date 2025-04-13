@@ -6,7 +6,7 @@ A **Django-based** virtual study room platform where students can join group stu
 
 ## ✨ Features
 
-- 🔴 Real-time video conferencing (powered by [Agora SDK](https://www.agora.io))
+- 🔴 Real-time video conferencing (powered by [webRTC])
 - 🖥️ Screen sharing
 - 🏠 Public and private study rooms
 - 📁 Resource sharing (documents, links, images)
