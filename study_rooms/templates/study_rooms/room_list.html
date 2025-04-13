@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Study Rooms</h2>
+        <a href="{% url 'study_rooms:create_room' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Create New Room
+        </a>
+    </div>
+
+    <!-- Rooms You Created -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="h5 mb-0">Your Created Rooms</h3>
+        </div>
+        <div class="card-body">
+            {% if created_rooms %}
+                <div class="row">
+                    {% for room in created_rooms %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100 room-card">
+                                <div class="card-body">
+                                    <h5 class="card-title text-primary">{{ room.name }}</h5>
+                                    {% if room.description %}
+                                        <p class="card-text text-muted small">{{ room.description|truncatewords:20 }}</p>
+                                    {% endif %}
+                                    <div class="d-flex justify-content-between align-items-center mt-3">
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-users"></i> {{ room.participants.count }}/{{ room.max_participants }}
+                                        </span>
+                                        <a href="{% url 'study_rooms:room_detail' room.pk %}" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-arrow-right"></i> Enter Room
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">You haven't created any rooms yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Public Rooms -->
+    {% if public_rooms %}
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h3 class="h5 mb-0">Public Rooms</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for room in public_rooms %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 room-card">
+                            <div class="card-body">
+                                <h5 class="card-title text-success">{{ room.name }}</h5>
+                                {% if room.description %}
+                                    <p class="card-text text-muted small">{{ room.description|truncatewords:20 }}</p>
+                                {% endif %}
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <div>
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-users"></i> {{ room.participants.count }}/{{ room.max_participants }}
+                                        </span>
+                                        <span class="badge bg-secondary ms-1">
+                                            <i class="fas fa-user"></i> {{ room.host.username }}
+                                        </span>
+                                    </div>
+                                    <form method="post" action="{% url 'study_rooms:join_room' room.pk %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success btn-sm">
+                                            <i class="fas fa-sign-in-alt"></i> Join
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .room-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+    .room-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .card-header {
+        border-bottom: none;
+    }
+    .badge {
+        font-weight: normal;
+        padding: 0.5em 0.8em;
+    }
+    .btn-sm {
+        padding: 0.4em 0.8em;
+    }
+</style>
+{% endblock %} 

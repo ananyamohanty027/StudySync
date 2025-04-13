@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-lg mb-4">
+                <div class="card-body text-center">
+                    <div class="profile-avatar mb-3">
+                        <i class="fas fa-user-circle fa-6x text-primary"></i>
+                    </div>
+                    <h4>{{ user.username }}</h4>
+                    <p class="text-muted">{{ user.email }}</p>
+                    <p class="text-muted">Member since: {{ user.date_joined|date:"F Y" }}</p>
+                    <a href="#" class="btn btn-outline-primary">Edit Profile</a>
+                </div>
+            </div>
+            
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Account Settings</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Change Password</span>
+                            <a href="#" class="btn btn-sm btn-outline-primary">Change</a>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Email Notifications</span>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>Two-Factor Authentication</span>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="twoFactorAuth">
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card shadow-lg mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Your Study Rooms</h5>
+                </div>
+                <div class="card-body">
+                    {% if user_rooms %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Room Name</th>
+                                        <th>Participants</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for room in user_rooms %}
+                                        <tr>
+                                            <td>{{ room.name }}</td>
+                                            <td>{{ room.participants.count }}/{{ room.max_participants }}</td>
+                                            <td>{{ room.created_at|date:"M d, Y" }}</td>
+                                            <td>
+                                                <a href="{% url 'study_rooms:room_detail' room.pk %}" class="btn btn-sm btn-primary">Join</a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-center">You haven't joined any study rooms yet.</p>
+                        <div class="text-center">
+                            <a href="{% url 'study_rooms:room_list' %}" class="btn btn-primary">Find Rooms</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Recent Activity</h5>
+                </div>
+                <div class="card-body">
+                    <div class="activity-timeline">
+                        {% if recent_activity %}
+                            {% for activity in recent_activity %}
+                                <div class="activity-item d-flex mb-3">
+                                    <div class="activity-icon me-3">
+                                        <i class="fas fa-circle text-primary"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <p class="mb-0">{{ activity.description }}</p>
+                                        <small class="text-muted">{{ activity.timestamp|date:"M d, Y H:i" }}</small>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-center">No recent activity to display.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        border-radius: 15px;
+        border: none;
+    }
+    
+    .card-header {
+        border-radius: 15px 15px 0 0 !important;
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%) !important;
+    }
+    
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        border: none;
+        border-radius: 30px;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a0cb0 0%, #1a5fc7 100%);
+        transform: translateY(-2px);
+    }
+    
+    .btn-outline-primary {
+        color: #2575fc;
+        border-color: #2575fc;
+        border-radius: 30px;
+    }
+    
+    .btn-outline-primary:hover {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .activity-timeline {
+        position: relative;
+    }
+    
+    .activity-item {
+        position: relative;
+    }
+    
+    .activity-icon {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .form-check-input:checked {
+        background-color: #2575fc;
+        border-color: #2575fc;
+    }
+</style>
+{% endblock %} 

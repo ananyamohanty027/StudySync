@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Study Session{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="auth-container">
+                <h2><i class="fas fa-calendar-plus me-2"></i>Create Study Session</h2>
+                
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <form method="post" id="studySessionForm" onsubmit="return validateForm()">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="id_title" class="form-label">Session Title</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0">
+                                <i class="fas fa-heading text-primary"></i>
+                            </span>
+                            {{ form.title }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_description" class="form-label">Description</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0">
+                                <i class="fas fa-align-left text-primary"></i>
+                            </span>
+                            {{ form.description }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_scheduled_start" class="form-label">Start Time</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0">
+                                <i class="fas fa-clock text-primary"></i>
+                            </span>
+                            {{ form.scheduled_start }}
+                        </div>
+                        <div id="startTimeError" class="text-danger mt-1" style="display: none;"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_scheduled_end" class="form-label">End Time</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0">
+                                <i class="fas fa-hourglass-end text-primary"></i>
+                            </span>
+                            {{ form.scheduled_end }}
+                        </div>
+                        <div id="endTimeError" class="text-danger mt-1" style="display: none;"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Session Features</label>
+                        <div class="d-flex gap-3">
+                            <div class="form-check">
+                                {{ form.has_video_call }}
+                                <label class="form-check-label" for="id_has_video_call">
+                                    <i class="fas fa-video me-1"></i>Video Call
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                {{ form.has_screen_sharing }}
+                                <label class="form-check-label" for="id_has_screen_sharing">
+                                    <i class="fas fa-desktop me-1"></i>Screen Sharing
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                {{ form.has_document_collaboration }}
+                                <label class="form-check-label" for="id_has_document_collaboration">
+                                    <i class="fas fa-file-alt me-1"></i>Document Collaboration
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-calendar-plus me-2"></i>Create Session
+                        </button>
+                        <a href="{% url 'study_rooms:room_detail' room.pk %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Room
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function validateForm() {
+    const startTime = new Date(document.getElementById('id_scheduled_start').value);
+    const endTime = new Date(document.getElementById('id_scheduled_end').value);
+    const now = new Date();
+    const nextYear = new Date();
+    nextYear.setFullYear(now.getFullYear() + 1);
+
+    // Reset error messages
+    document.getElementById('startTimeError').style.display = 'none';
+    document.getElementById('endTimeError').style.display = 'none';
+
+    // Check if start time is in the past
+    if (startTime < now) {
+        document.getElementById('startTimeError').textContent = 'Start time cannot be in the past';
+        document.getElementById('startTimeError').style.display = 'block';
+        return false;
+    }
+
+    // Check if end time is beyond next year
+    if (endTime > nextYear) {
+        document.getElementById('endTimeError').textContent = 'Session cannot be scheduled beyond next year';
+        document.getElementById('endTimeError').style.display = 'block';
+        return false;
+    }
+
+    // Calculate duration in hours
+    const durationHours = (endTime - startTime) / (1000 * 60 * 60);
+
+    // Check if duration is more than 1 hour
+    if (durationHours > 1) {
+        if (!confirm('Sessions longer than 1 hour are not recommended. Would you like to create multiple shorter sessions instead?')) {
+            return false;
+        }
+    }
+
+    // Check if end time is before start time
+    if (endTime <= startTime) {
+        document.getElementById('endTimeError').textContent = 'End time must be after start time';
+        document.getElementById('endTimeError').style.display = 'block';
+        return false;
+    }
+
+    return true;
+}
+
+// Set minimum date and time for start and end fields
+window.addEventListener('load', function() {
+    const now = new Date();
+    const nextYear = new Date();
+    nextYear.setFullYear(now.getFullYear() + 1);
+    
+    // Format the dates for datetime-local input
+    const nowString = now.toISOString().slice(0, 16);
+    const nextYearString = nextYear.toISOString().slice(0, 16);
+    
+    const startInput = document.getElementById('id_scheduled_start');
+    const endInput = document.getElementById('id_scheduled_end');
+    
+    startInput.min = nowString;
+    startInput.max = nextYearString;
+    endInput.min = nowString;
+    endInput.max = nextYearString;
+    
+    // Update end time min when start time changes
+    startInput.addEventListener('change', function() {
+        endInput.min = this.value;
+    });
+});
+</script>
+{% endblock %}

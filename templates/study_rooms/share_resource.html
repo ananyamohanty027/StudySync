@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Share Resource - {{ room.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="h4 mb-0">Share Resource in {{ room.name }}</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'study_rooms:room_detail' room.pk %}" class="btn btn-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Share Resource</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Show/hide file and link fields based on resource type
+    document.addEventListener('DOMContentLoaded', function() {
+        const resourceTypeSelect = document.getElementById('id_resource_type');
+        const fileField = document.getElementById('div_id_file');
+        const linkField = document.getElementById('div_id_link');
+
+        function toggleFields() {
+            const selectedValue = resourceTypeSelect.value;
+            if (selectedValue === 'link') {
+                fileField.style.display = 'none';
+                linkField.style.display = 'block';
+            } else if (selectedValue === 'document' || selectedValue === 'image') {
+                fileField.style.display = 'block';
+                linkField.style.display = 'none';
+            } else {
+                fileField.style.display = 'block';
+                linkField.style.display = 'block';
+            }
+        }
+
+        resourceTypeSelect.addEventListener('change', toggleFields);
+        toggleFields(); // Initial state
+    });
+</script>
+{% endblock %} 

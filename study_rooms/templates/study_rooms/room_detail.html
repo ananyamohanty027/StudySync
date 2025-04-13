@@ -1,0 +1,399 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ room.name }} - Virtual Study Room{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">{{ room.name }}</h2>
+                    <div>
+                        <a href="{% url 'study_rooms:create_study_session' room.id %}" class="btn btn-success btn-lg">Schedule Study Session</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p><strong>Host:</strong> {{ room.host.username }}</p>
+                    <p><strong>Participants:</strong> {{ room.participants.count }}/{{ room.max_participants }}</p>
+                </div>
+            </div>
+
+            <!-- Active Video Call Section -->
+            {% if active_video_call %}
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">Active Video Call</h3>
+                    <form method="post" action="{% url 'study_rooms:end_video_call' room.id %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">End Call</button>
+                    </form>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <video id="localVideo" autoplay muted class="w-100"></video>
+                        </div>
+                        <div class="col-md-4">
+                            <div id="remoteVideos" class="d-flex flex-column gap-2">
+                                <!-- Remote videos will be added here -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button id="startVideo" class="btn btn-primary">Start Video</button>
+                        <button id="toggleAudio" class="btn btn-secondary">Mute</button>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Active Screen Share Section -->
+            {% if active_screen_share %}
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">Screen Share by {{ active_screen_share.shared_by.username }}</h3>
+                    {% if active_screen_share.shared_by == user or is_moderator %}
+                    <form method="post" action="{% url 'study_rooms:end_screen_share' room.id %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Stop Sharing</button>
+                    </form>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div id="screenShareView" class="w-100" style="height: 400px; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center;">
+                        <div class="text-center">
+                            <h5>Screen Share View</h5>
+                            <p>Screen sharing content will appear here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Study Sessions Section -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">Study Sessions</h3>
+                    <a href="{% url 'study_rooms:create_study_session' room.id %}" class="btn btn-success">Schedule New Session</a>
+                </div>
+                <div class="card-body">
+                    {% if study_sessions %}
+                        <div class="list-group">
+                            {% for session in study_sessions %}
+                                <a href="{% url 'study_rooms:study_session_detail' session.id %}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1">{{ session.title }}</h5>
+                                        <small>{{ session.scheduled_start|date:"M d, Y, g:i a" }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ session.description|truncatechars:100 }}</p>
+                                    <div class="d-flex gap-2">
+                                        {% if session.has_video_call %}
+                                            <span class="badge bg-primary">Video Call</span>
+                                        {% endif %}
+                                        {% if session.has_screen_sharing %}
+                                            <span class="badge bg-info">Screen Sharing</span>
+                                        {% endif %}
+                                        {% if session.has_document_collaboration %}
+                                            <span class="badge bg-success">Document Collaboration</span>
+                                        {% endif %}
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-center">No study sessions scheduled. Click the button above to schedule one!</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Shared Resources Section -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="mb-0">Shared Resources</h3>
+                </div>
+                <div class="card-body">
+                    {% if resources %}
+                        <div class="list-group">
+                            {% for resource in resources %}
+                                <div class="list-group-item">
+                                    <h5>{{ resource.title }}</h5>
+                                    <p>Shared by {{ resource.shared_by.username }}</p>
+                                    {% if resource.resource_type == 'document' and resource.file %}
+                                        <a href="{{ resource.file.url }}" class="btn btn-sm btn-outline-primary">Download Document</a>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p>No resources shared yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Collaborative Documents Section -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="mb-0">Collaborative Documents</h3>
+                </div>
+                <div class="card-body">
+                    {% if documents %}
+                        <div class="list-group">
+                            {% for document in documents %}
+                                <div class="list-group-item">
+                                    <h5>{{ document.title }}</h5>
+                                    <p>Created by {{ document.created_by.username }}</p>
+                                    <p>Last modified: {{ document.last_modified|date:"F j, Y, g:i a" }}</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p>No documents created yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Chat Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">Chat</h3>
+                </div>
+                <div class="card-body">
+                    <div id="chat-messages" class="mb-3" style="height: 300px; overflow-y: auto;">
+                        {% for message in chat_messages %}
+                            <div class="mb-2">
+                                <strong>{{ message.user.username }}:</strong> {{ message.message }}
+                                <small class="text-muted">{{ message.timestamp|date:"g:i a" }}</small>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <form id="chat-form" class="d-flex">
+                        <input type="text" id="message-input" class="form-control me-2" placeholder="Type your message...">
+                        <button type="submit" class="btn btn-primary">Send</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // WebSocket connections
+    const roomId = {{ room.id }};
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const videoCallSocket = new WebSocket(
+        protocol + '//' + window.location.host + '/ws/video_call/' + roomId + '/'
+    );
+    const screenShareSocket = new WebSocket(
+        protocol + '//' + window.location.host + '/ws/screen_share/' + roomId + '/'
+    );
+    const chatSocket = new WebSocket(
+        protocol + '//' + window.location.host + '/ws/chat/' + roomId + '/'
+    );
+
+    // WebSocket connection status logging
+    function logWebSocketStatus(socket, name) {
+        console.log(`${name} WebSocket state:`, socket.readyState);
+        socket.onopen = () => console.log(`${name} WebSocket connected`);
+        socket.onclose = (event) => console.log(`${name} WebSocket closed:`, event.code, event.reason);
+        socket.onerror = (error) => console.error(`${name} WebSocket error:`, error);
+    }
+
+    logWebSocketStatus(videoCallSocket, 'Video Call');
+    logWebSocketStatus(screenShareSocket, 'Screen Share');
+    logWebSocketStatus(chatSocket, 'Chat');
+
+    // Video call variables
+    let localStream;
+    let peerConnections = {};
+    const configuration = {
+        iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+            { urls: 'stun:stun2.l.google.com:19302' }
+        ]
+    };
+
+    // Video call functions
+    async function startVideoCall() {
+        try {
+            console.log('Starting video call...');
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            console.log('Got local stream:', localStream);
+            document.getElementById('localVideo').srcObject = localStream;
+            
+            // Add local stream to all peer connections
+            Object.values(peerConnections).forEach(pc => {
+                pc.addStream(localStream);
+            });
+        } catch (error) {
+            console.error('Error accessing media devices:', error);
+            alert('Error accessing camera and microphone. Please ensure you have granted the necessary permissions.');
+        }
+    }
+
+    function createPeerConnection(userId) {
+        console.log('Creating peer connection for user:', userId);
+        const pc = new RTCPeerConnection(configuration);
+        
+        // Add local stream if available
+        if (localStream) {
+            pc.addStream(localStream);
+        }
+
+        // Handle ICE candidates
+        pc.onicecandidate = event => {
+            if (event.candidate) {
+                console.log('Sending ICE candidate:', event.candidate);
+                videoCallSocket.send(JSON.stringify({
+                    type: 'ice_candidate',
+                    candidate: event.candidate
+                }));
+            }
+        };
+
+        // Handle remote stream
+        pc.ontrack = event => {
+            console.log('Received remote track:', event.streams[0]);
+            const remoteVideo = document.createElement('video');
+            remoteVideo.srcObject = event.streams[0];
+            remoteVideo.autoplay = true;
+            document.getElementById('remoteVideos').appendChild(remoteVideo);
+        };
+
+        peerConnections[userId] = pc;
+        return pc;
+    }
+
+    // Screen sharing functions
+    async function startScreenShare() {
+        try {
+            console.log('Starting screen share...');
+            const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+            console.log('Got screen share stream:', stream);
+            const videoTrack = stream.getVideoTracks()[0];
+            
+            // Send screen share data through WebSocket
+            screenShareSocket.send(JSON.stringify({
+                type: 'screen_share',
+                data: {
+                    track: videoTrack
+                }
+            }));
+
+            // Handle stream end
+            videoTrack.onended = () => {
+                console.log('Screen share ended');
+                stopScreenShare();
+            };
+        } catch (error) {
+            console.error('Error sharing screen:', error);
+            alert('Error sharing screen. Please ensure you have granted the necessary permissions.');
+        }
+    }
+
+    function stopScreenShare() {
+        console.log('Stopping screen share...');
+        screenShareSocket.send(JSON.stringify({
+            type: 'stop_screen_share'
+        }));
+    }
+
+    // WebSocket event handlers
+    videoCallSocket.onmessage = async function(e) {
+        console.log('Video call WebSocket message:', e.data);
+        const data = JSON.parse(e.data);
+        
+        switch(data.type) {
+            case 'offer':
+                console.log('Received offer from:', data.sender);
+                const pc = createPeerConnection(data.sender);
+                await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+                const answer = await pc.createAnswer();
+                await pc.setLocalDescription(answer);
+                videoCallSocket.send(JSON.stringify({
+                    type: 'answer',
+                    answer: answer
+                }));
+                break;
+                
+            case 'answer':
+                console.log('Received answer from:', data.sender);
+                const peerConnection = peerConnections[data.sender];
+                if (peerConnection) {
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+                }
+                break;
+                
+            case 'ice_candidate':
+                console.log('Received ICE candidate from:', data.sender);
+                const pc2 = peerConnections[data.sender];
+                if (pc2) {
+                    await pc2.addIceCandidate(new RTCIceCandidate(data.candidate));
+                }
+                break;
+        }
+    };
+
+    screenShareSocket.onmessage = function(e) {
+        console.log('Screen share WebSocket message:', e.data);
+        const data = JSON.parse(e.data);
+        
+        if (data.type === 'screen_share') {
+            console.log('Received screen share from:', data.sender);
+            // Display screen share
+            const screenShareView = document.getElementById('screenShareView');
+            screenShareView.innerHTML = `
+                <video autoplay playsinline style="width: 100%; height: 100%;"></video>
+            `;
+            const video = screenShareView.querySelector('video');
+            video.srcObject = new MediaStream([data.data.track]);
+        }
+    };
+
+    chatSocket.onmessage = function(e) {
+        console.log('Chat WebSocket message:', e.data);
+        const data = JSON.parse(e.data);
+        
+        if (data.type === 'chat_message') {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'mb-2';
+            messageDiv.innerHTML = `
+                <strong>${data.username}:</strong> ${data.message}
+                <small class="text-muted d-block">${new Date().toLocaleTimeString()}</small>
+            `;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    };
+
+    // Event listeners
+    document.getElementById('startVideo').addEventListener('click', startVideoCall);
+    document.getElementById('toggleAudio').addEventListener('click', function() {
+        if (localStream) {
+            const audioTrack = localStream.getAudioTracks()[0];
+            audioTrack.enabled = !audioTrack.enabled;
+            this.textContent = audioTrack.enabled ? 'Mute' : 'Unmute';
+        }
+    });
+
+    // Chat form submission
+    document.getElementById('chat-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const input = document.getElementById('message-input');
+        const message = input.value.trim();
+        
+        if (message) {
+            chatSocket.send(JSON.stringify({
+                type: 'chat_message',
+                message: message
+            }));
+            input.value = '';
+        }
+    });
+</script>
+{% endblock %} 

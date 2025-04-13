@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Study Sessions - Virtual Study Room{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">Study Sessions</h2>
+                    <a href="{% url 'study_rooms:room_list' %}" class="btn btn-primary">Back to Rooms</a>
+                </div>
+                <div class="card-body">
+                    {% if study_sessions %}
+                        <div class="list-group">
+                            {% for session in study_sessions %}
+                                <a href="{% url 'study_rooms:study_session_detail' session.id %}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1">{{ session.title }}</h5>
+                                        <small>{{ session.scheduled_start|date:"M d, Y, g:i a" }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ session.description|truncatechars:100 }}</p>
+                                    <div class="d-flex gap-2">
+                                        <span class="badge bg-primary">{{ session.room.name }}</span>
+                                        {% if session.has_video_call %}
+                                            <span class="badge bg-info">Video Call</span>
+                                        {% endif %}
+                                        {% if session.has_screen_sharing %}
+                                            <span class="badge bg-success">Screen Sharing</span>
+                                        {% endif %}
+                                        {% if session.has_document_collaboration %}
+                                            <span class="badge bg-warning">Document Collaboration</span>
+                                        {% endif %}
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-center">No study sessions found. Join a room to see its study sessions.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

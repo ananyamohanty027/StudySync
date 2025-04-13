@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Login | StudySync Hub{% endblock %}
+
+{% block content %}
+<div class="auth-container fade-in">
+    <h2><i class="fas fa-sign-in-alt me-2"></i>Welcome Back!</h2>
+    
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        Your username and password didn't match. Please try again.
+    </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'account_login' %}">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <div class="input-group">
+                <span class="input-group-text bg-light border-0">
+                    <i class="fas fa-user text-primary"></i>
+                </span>
+                <input type="text" name="login" class="form-control" placeholder="Username or Email" required>
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            <div class="input-group">
+                <span class="input-group-text bg-light border-0">
+                    <i class="fas fa-lock text-primary"></i>
+                </span>
+                <input type="password" name="password" class="form-control" placeholder="Password" required>
+            </div>
+        </div>
+        
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="remember" name="remember">
+            <label class="form-check-label" for="remember">Remember me</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-sign-in-alt me-2"></i>Login
+        </button>
+
+        <input type="hidden" name="next" value="{{ next }}">
+    </form>
+
+    <div class="auth-links mt-4">
+        <p>Don't have an account? <a href="{% url 'account_signup' %}">Sign Up</a></p>
+        <p><a href="{% url 'account_reset_password' %}">Forgot Password?</a></p>
+    </div>
+</div>
+{% endblock %}

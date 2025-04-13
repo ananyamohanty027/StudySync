@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Teacher Verification{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">
+                        <i class="fas fa-chalkboard-teacher me-2"></i>Teacher Verification
+                    </h2>
+
+                    {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="teacher_id" class="form-label">Enter Your Teacher ID</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">
+                                    <i class="fas fa-id-card text-primary"></i>
+                                </span>
+                                <input type="text" class="form-control" id="teacher_id" name="teacher_id" required
+                                    placeholder="e.g., 101, 102, 103">
+                            </div>
+                            <div class="form-text text-muted">
+                                Only verified teachers can create study rooms. If you don't have a teacher ID, please contact the administrator.
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-check-circle me-2"></i>Verify Teacher ID
+                            </button>
+                            <a href="{% url 'study_rooms:home' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Home
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

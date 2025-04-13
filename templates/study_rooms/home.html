@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome to StudySync Hub{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="container">
+        <div class="row align-items-center min-vh-75">
+            <div class="col-lg-6 py-5">
+                <h1 class="display-4 fw-bold mb-4 text-gradient">Welcome to StudySync Hub</h1>
+                <p class="lead mb-4">A collaborative space where learning meets innovation. Join study rooms, participate in live sessions, and connect with fellow learners.</p>
+                <div class="d-flex gap-3">
+                    {% if user.is_authenticated %}
+                        {% if user.teacher and user.teacher.is_verified %}
+                            <a href="{% url 'study_rooms:create_room' %}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-plus me-2"></i>Create Room
+                            </a>
+                        {% else %}
+                            <a href="{% url 'study_rooms:verify_teacher' %}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-chalkboard-teacher me-2"></i>Verify as Teacher
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'study_rooms:room_list' %}" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-door-open me-2"></i>View Study Rooms
+                        </a>
+                    {% else %}
+                        <a href="{% url 'account_login' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                        </a>
+                        <a href="{% url 'account_signup' %}" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>Sign Up
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6 py-5 d-none d-lg-block">
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <i class="fas fa-video fa-2x text-primary mb-3"></i>
+                        <h5>Video Calls</h5>
+                        <p>Face-to-face interaction with HD video calls</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-desktop fa-2x text-info mb-3"></i>
+                        <h5>Screen Sharing</h5>
+                        <p>Share your screen for better collaboration</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-file-alt fa-2x text-success mb-3"></i>
+                        <h5>Document Sharing</h5>
+                        <p>Share and edit documents in real-time</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-calendar-alt fa-2x text-warning mb-3"></i>
+                        <h5>Study Sessions</h5>
+                        <p>Schedule and manage study sessions</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-users fa-3x text-primary"></i>
+                    </div>
+                    <h4>Collaborative Learning</h4>
+                    <p class="text-muted">Join study rooms and learn together with peers from around the world.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-clock fa-3x text-success"></i>
+                    </div>
+                    <h4>Flexible Scheduling</h4>
+                    <p class="text-muted">Create and join study sessions that fit your schedule.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-tools fa-3x text-info"></i>
+                    </div>
+                    <h4>Powerful Tools</h4>
+                    <p class="text-muted">Access video calls, screen sharing, and document collaboration tools.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="display-6 mb-4">Ready to Start Learning?</h2>
+                <p class="lead mb-4">Join StudySync Hub today and experience a new way of collaborative learning.</p>
+                {% if not user.is_authenticated %}
+                    <div class="d-flex gap-3">
+                        <a href="{% url 'account_signup' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-rocket me-2"></i>Get Started
+                        </a>
+                        <a href="{% url 'account_login' %}" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-lg-6">
+                <div class="stats-grid">
+                    <div class="stat-card text-center">
+                        <h3 class="display-6 fw-bold text-primary">1000+</h3>
+                        <p class="text-muted mb-0">Active Users</p>
+                    </div>
+                    <div class="stat-card text-center">
+                        <h3 class="display-6 fw-bold text-success">500+</h3>
+                        <p class="text-muted mb-0">Study Rooms</p>
+                    </div>
+                    <div class="stat-card text-center">
+                        <h3 class="display-6 fw-bold text-info">2000+</h3>
+                        <p class="text-muted mb-0">Study Sessions</p>
+                    </div>
+                    <div class="stat-card text-center">
+                        <h3 class="display-6 fw-bold text-warning">24/7</h3>
+                        <p class="text-muted mb-0">Support</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

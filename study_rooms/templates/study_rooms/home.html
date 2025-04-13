@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome to Virtual Study Room{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 text-center">
+            <h1 class="display-4 mb-4">Welcome to Virtual Study Room</h1>
+            <p class="lead mb-4">Create and join study rooms to collaborate with others in real-time.</p>
+            
+            {% if user.is_authenticated %}
+                <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+                    <a href="{% url 'study_rooms:room_list' %}" class="btn btn-primary btn-lg px-4 gap-3">View Study Rooms</a>
+                    <a href="{% url 'study_rooms:create_room' %}" class="btn btn-outline-primary btn-lg px-4">Create Room</a>
+                </div>
+            {% else %}
+                <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+                    <a href="{% url 'account_login' %}" class="btn btn-primary btn-lg px-4 gap-3">Login</a>
+                    <a href="{% url 'account_signup' %}" class="btn btn-outline-primary btn-lg px-4">Register</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-3x mb-3 text-primary"></i>
+                    <h3 class="card-title">Collaborative Study</h3>
+                    <p class="card-text">Study together with friends and classmates in real-time virtual rooms.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-comments fa-3x mb-3 text-primary"></i>
+                    <h3 class="card-title">Real-time Chat</h3>
+                    <p class="card-text">Communicate effectively with text chat and video calls.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-share-alt fa-3x mb-3 text-primary"></i>
+                    <h3 class="card-title">Share Resources</h3>
+                    <p class="card-text">Share and collaborate on documents and study materials.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

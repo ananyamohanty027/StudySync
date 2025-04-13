@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2 class="h4 mb-0">{{ document.title }}</h2>
+                    <div>
+                        <a href="{% url 'study_rooms:room_detail' document.room.pk %}" class="btn btn-secondary">Back to Room</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            Created by {{ document.created_by.username }} on {{ document.created_at|date:"F j, Y" }}
+                            <br>
+                            Last modified: {{ document.last_modified|date:"F j, Y, g:i a" }}
+                        </small>
+                    </div>
+                    
+                    <form id="document-form" method="post" action="{% url 'study_rooms:save_document_edit' document.pk %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <textarea id="document-content" name="content" class="form-control" rows="20" required>{{ document.content }}</textarea>
+                        </div>
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Edit History -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="h5 mb-0">Edit History</h3>
+                </div>
+                <div class="card-body">
+                    {% if document.edits.all %}
+                        <div class="list-group">
+                            {% for edit in document.edits.all %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <strong>{{ edit.user.username }}</strong>
+                                        <small class="text-muted">{{ edit.timestamp|date:"F j, Y, g:i a" }}</small>
+                                    </div>
+                                    <p class="mb-0 mt-2">{{ edit.content|truncatechars:200 }}</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No edit history available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const documentForm = document.getElementById('document-form');
+    const contentArea = document.getElementById('document-content');
+    let lastSavedContent = contentArea.value;
+    
+    // Auto-save functionality
+    let autoSaveTimeout;
+    contentArea.addEventListener('input', function() {
+        clearTimeout(autoSaveTimeout);
+        autoSaveTimeout = setTimeout(function() {
+            if (contentArea.value !== lastSavedContent) {
+                saveDocument();
+            }
+        }, 2000); // Auto-save after 2 seconds of inactivity
+    });
+    
+    // Manual save
+    documentForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        saveDocument();
+    });
+    
+    function saveDocument() {
+        const formData = new FormData(documentForm);
+        
+        fetch(documentForm.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                lastSavedContent = contentArea.value;
+                // Show save indicator
+                const saveIndicator = document.createElement('div');
+                saveIndicator.className = 'alert alert-success mt-2';
+                saveIndicator.textContent = 'Changes saved successfully!';
+                documentForm.appendChild(saveIndicator);
+                setTimeout(() => saveIndicator.remove(), 3000);
+            }
+        })
+        .catch(error => {
+            console.error('Error saving document:', error);
+            // Show error indicator
+            const errorIndicator = document.createElement('div');
+            errorIndicator.className = 'alert alert-danger mt-2';
+            errorIndicator.textContent = 'Error saving changes. Please try again.';
+            documentForm.appendChild(errorIndicator);
+            setTimeout(() => errorIndicator.remove(), 3000);
+        });
+    }
+});
+</script>
+{% endblock %} 

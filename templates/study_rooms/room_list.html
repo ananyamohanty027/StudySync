@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Study Rooms{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1><i class="fas fa-door-open me-2"></i>Study Rooms</h1>
+            <p class="lead">Browse and join available study rooms</p>
+        </div>
+        <div class="col-md-4 text-end">
+            {% if user.is_authenticated %}
+                {% if user.teacher and user.teacher.is_verified %}
+                    <a href="{% url 'study_rooms:create_room' %}" class="btn btn-primary">
+                        <i class="fas fa-plus-circle me-2"></i>Create Room
+                    </a>
+                {% else %}
+                    <a href="{% url 'study_rooms:verify_teacher' %}" class="btn btn-primary">
+                        <i class="fas fa-chalkboard-teacher me-2"></i>Verify as Teacher
+                    </a>
+                    <div class="mt-2 text-muted small">
+                        <i class="fas fa-info-circle me-1"></i>Only verified teachers can create rooms
+                    </div>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'account_login' %}" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login to Create Room
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <h1>Study Rooms</h1>
+    
+    {% if rooms %}
+        <div class="row">
+            {% for room in rooms %}
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ room.name }}</h5>
+                            <p class="card-text">{{ room.description }}</p>
+                            <p class="card-text"><small class="text-muted">Host: {{ room.host.username }}</small></p>
+                            <p class="card-text"><small class="text-muted">Created: {{ room.created_at|date:"F j, Y" }}</small></p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No study rooms available.</p>
+    {% endif %}
+</div>
+{% endblock %} 

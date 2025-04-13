@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Study Rooms</h2>
+    
+    <div class="alert alert-info">
+        <p>Current User: {{ request.user.username }}</p>
+        <p>Created Rooms Count: {{ created_rooms|length }}</p>
+        <p>User Rooms Count: {{ user_rooms|length }}</p>
+        <p>Public Rooms Count: {{ public_rooms|length }}</p>
+    </div>
+    
+    <a href="{% url 'study_rooms:create_room' %}" class="btn btn-primary mb-4">Create New Room</a>
+    
+    <h3>Rooms You Created</h3>
+    <ul>
+        {% for room in created_rooms %}
+            <li>{{ room.name }} - <a href="{% url 'study_rooms:room_detail' room.pk %}">View</a></li>
+        {% empty %}
+            <li>You haven't created any rooms yet.</li>
+        {% endfor %}
+    </ul>
+    
+    <h3>Your Rooms</h3>
+    <ul>
+        {% for room in user_rooms %}
+            {% if room.host != request.user %}
+                <li>{{ room.name }} - <a href="{% url 'study_rooms:room_detail' room.pk %}">Join</a></li>
+            {% endif %}
+        {% empty %}
+            <li>You haven't joined any rooms yet.</li>
+        {% endfor %}
+    </ul>
+    
+    <h3>Public Rooms</h3>
+    <ul>
+        {% for room in public_rooms %}
+            <li>
+                {{ room.name }} - 
+                <form method="post" action="{% url 'study_rooms:join_room' room.pk %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-success">Join</button>
+                </form>
+            </li>
+        {% empty %}
+            <li>No public rooms available at the moment.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %} 

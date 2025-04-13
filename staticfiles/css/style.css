@@ -1,0 +1,238 @@
+/* Modern design system for StudySync Hub */
+
+:root {
+    --primary-color: #6366f1;
+    --primary-hover: #4f46e5;
+    --secondary-color: #10b981;
+    --accent-color: #f59e0b;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --bg-light: #f8fafc;
+    --bg-dark: #0f172a;
+    --gradient-primary: linear-gradient(135deg, #6366f1, #4f46e5);
+    --gradient-secondary: linear-gradient(135deg, #10b981, #059669);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* General styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    color: var(--text-primary);
+    background-color: var(--bg-light);
+    background-image: url('https://images.unsplash.com/photo-1519681393784-d120267933ba');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    z-index: -1;
+}
+
+main {
+    flex: 1;
+    position: relative;
+    z-index: 1;
+}
+
+/* Authentication pages */
+.auth-container {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(10px);
+}
+
+.auth-container h2 {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.auth-container .form-control {
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: var(--bg-light);
+    margin-bottom: 1rem;
+}
+
+.auth-container .btn-primary {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--gradient-primary);
+    border: none;
+    margin-top: 1rem;
+}
+
+.auth-container .auth-links {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.auth-container .auth-links a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.auth-container .auth-links a:hover {
+    text-decoration: underline;
+}
+
+/* Navigation */
+.navbar {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-sm);
+    padding: 1rem 0;
+}
+
+.navbar-brand {
+    font-weight: 600;
+    background: var(--gradient-primary);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 1.5rem;
+}
+
+.nav-link {
+    color: var(--text-primary);
+    font-weight: 500;
+    transition: all 0.2s;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+}
+
+.nav-link:hover {
+    color: var(--primary-color);
+    background: var(--bg-light);
+}
+
+/* Cards and containers */
+.room-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 1rem;
+    border: none;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s;
+    height: 100%;
+    backdrop-filter: blur(10px);
+}
+
+.room-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.room-card .card-header {
+    background: var(--gradient-primary);
+    color: white;
+    border-radius: 1rem 1rem 0 0;
+    padding: 1rem;
+}
+
+.chat-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-md);
+}
+
+.chat-message.own {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+/* Buttons */
+.btn {
+    font-weight: 500;
+    padding: 0.5rem 1.25rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: var(--gradient-primary);
+    border: none;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+    background: transparent;
+}
+
+.btn-outline-primary:hover {
+    background: var(--gradient-primary);
+    border-color: transparent;
+    color: white;
+}
+
+/* Footer */
+.footer {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-sm);
+    margin-top: 2rem;
+    padding: 1.5rem 0;
+}
+
+.social-links a {
+    color: var(--primary-color);
+    font-size: 1.25rem;
+    margin: 0 0.5rem;
+    transition: all 0.2s;
+}
+
+.social-links a:hover {
+    color: var(--primary-hover);
+    transform: translateY(-2px);
+}
+
+/* Custom animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .auth-container {
+        margin: 1rem;
+    }
+    
+    .navbar-brand {
+        font-size: 1.25rem;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
